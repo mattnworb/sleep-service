@@ -20,19 +20,21 @@ public class SleepServiceImpl extends SleepServiceGrpc.SleepServiceImplBase {
   public void sleep(
       final SleepRequest request, final StreamObserver<SleepResponse> responseObserver) {
 
-    if (request.getSleepTimeMillis() == 0) {
+    final int sleepTimeMillis = request.getSleepTimeMillis();
+    if (sleepTimeMillis == 0) {
       StatusException ex =
           Status.INVALID_ARGUMENT.withDescription("sleepTimeMillis must be > 0").asException();
       responseObserver.onError(ex);
-      responseObserver.onCompleted();
     }
 
     scheduledExecutorService.schedule(
         () -> {
-          responseObserver.onNext(SleepResponse.newBuilder().build());
+          final SleepResponse response =
+              SleepResponse.newBuilder().setTimeSleptMillis(sleepTimeMillis).build();
+          responseObserver.onNext(response);
           responseObserver.onCompleted();
         },
-        request.getSleepTimeMillis(),
+        sleepTimeMillis,
         TimeUnit.MILLISECONDS);
   }
 }

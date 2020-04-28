@@ -23,6 +23,7 @@ public class LoggingServerInterceptor implements io.grpc.ServerInterceptor {
         new ForwardingServerCall.SimpleForwardingServerCall<>(call) {
           @Override
           public void sendMessage(final RespT message) {
+            super.sendMessage(message);
             log.info("sent message for method {}", fullMethodName);
           }
         };
@@ -32,20 +33,20 @@ public class LoggingServerInterceptor implements io.grpc.ServerInterceptor {
     return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(listener) {
       @Override
       public void onMessage(final ReqT message) {
-        log.info("received message for method {}", fullMethodName);
         super.onMessage(message);
+        log.info("received message for method {}", fullMethodName);
       }
 
       @Override
       public void onCancel() {
-        log.info("call to {} cancelled", fullMethodName);
         super.onCancel();
+        log.info("call to {} cancelled", fullMethodName);
       }
 
       @Override
       public void onComplete() {
-        log.info("call to {} complete", fullMethodName);
         super.onComplete();
+        log.info("call to {} complete", fullMethodName);
       }
     };
   }
