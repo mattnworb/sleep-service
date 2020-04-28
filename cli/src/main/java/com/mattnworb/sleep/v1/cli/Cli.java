@@ -9,6 +9,8 @@ import com.mattnworb.sleep.v1.SleepResponse;
 import com.mattnworb.sleep.v1.SleepServiceGrpc;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +21,6 @@ import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Text;
 
 public class Cli {
   private static final Logger log = LoggerFactory.getLogger(Cli.class);
@@ -49,7 +50,7 @@ public class Cli {
 
     setupLogging(ns.getInt("logging-verbosity"));
 
-    sendRequest(ns);
+    sendBlockingRequest(ns);
 
     return 0;
   }
@@ -101,14 +102,19 @@ public class Cli {
         (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
     rootLogger.setLevel(level);
 
+    // TODO (mattbrown 4/28/20) wire up the ConsoleAppender with this.out or this.err
+
     final BasicConfigurator configurator = new BasicConfigurator();
     configurator.setContext(lc);
     configurator.configure(lc);
   }
 
-  private void sendRequest(final Namespace ns) {
+  private void sendBlockingRequest(final Namespace ns) {
     ManagedChannel channel =
-        ManagedChannelBuilder.forTarget(ns.getString("target")).usePlaintext().build();
+        ManagedChannelBuilder.forTarget(ns.getString("target"))
+            .usePlaintext()
+            .intercept(new LoggingClientInterceptor())
+            .build();
 
     int deadlineMillis = ns.getInt("deadline");
     int sleepTime = ns.getInt("sleepTime");
@@ -117,11 +123,22 @@ public class Cli {
 
     log.info("sending request: {}", TextFormat.shortDebugString(request));
 
-    SleepResponse response =
-        SleepServiceGrpc.newBlockingStub(channel)
-            .withDeadlineAfter(deadlineMillis, TimeUnit.MILLISECONDS)
-            .sleep(request);
+    try {
+      SleepResponse response =
+          SleepServiceGrpc.newBlockingStub(channel)
+              .withDeadlineAfter(deadlineMillis, TimeUnit.MILLISECONDS)
+              .sleep(request);
 
-    log.info("received response: {}", TextFormat.shortDebugString(response));
+      log.info("received response: {}", TextFormat.shortDebugString(response));
+    } catch (StatusRuntimeException ex) {
+      log.warn("caught StatusRuntimeException", ex);
+      if (ex.getStatus().getCode() == Status.Code.DEADLINE_EXCEEDED) {
+        log.info("caught DEADLINE_EXCEEDED, sleeping to see if a response comes in");
+        try {
+          Thread.sleep(10000);
+        } catch (InterruptedException ignored) {
+        }
+      }
+    }
   }
 }

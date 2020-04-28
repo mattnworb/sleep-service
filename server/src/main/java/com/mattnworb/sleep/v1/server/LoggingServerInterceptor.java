@@ -30,7 +30,7 @@ public class LoggingServerInterceptor implements io.grpc.ServerInterceptor {
 
     ServerCall.Listener<ReqT> listener = next.startCall(forwardingCall, headers);
 
-    return new ForwardingServerCallListener.SimpleForwardingServerCallListener<ReqT>(listener) {
+    return new ForwardingServerCallListener.SimpleForwardingServerCallListener<>(listener) {
       @Override
       public void onMessage(final ReqT message) {
         super.onMessage(message);
