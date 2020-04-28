@@ -26,9 +26,9 @@
   </properties>
 
   <modules>
-    <module>cli</module>
     <module>protos</module>
-    <module>service</module>
+    <module>cli</module>
+    <module>server</module>
   </modules>
 
   <dependencyManagement>
