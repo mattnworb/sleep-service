@@ -3,17 +3,9 @@ package com.mattnworb.sleep.v1.server;
 import ch.qos.logback.classic.BasicConfigurator;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import io.grpc.Server;
-import io.grpc.netty.NettyServerBuilder;
-import io.grpc.protobuf.services.ProtoReflectionService;
-import io.grpc.services.HealthStatusManager;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
@@ -23,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Cli {
-  private static final Logger log = LoggerFactory.getLogger(Cli.class);
-
   @SuppressWarnings("unused")
   private final PrintStream out;
 
@@ -90,28 +80,13 @@ public class Cli {
   }
 
   private int startServer(final int port) {
-    ThreadFactory threadFactory =
-        new ThreadFactoryBuilder().setNameFormat("sleep-service-scheduler-%%d").build();
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5, threadFactory);
-
-    HealthStatusManager healthStatusManager = new HealthStatusManager();
-
-    Server server =
-        NettyServerBuilder.forPort(port)
-            .addService(healthStatusManager.getHealthService())
-            .addService(ProtoReflectionService.newInstance())
-            .addService(new SleepServiceImpl(scheduler))
-            .intercept(new LoggingServerInterceptor())
-            .build();
-
+    Server server = new Server();
     try {
-      server.start();
-      log.info("started server on port {}", port);
+      server.start(port);
       server.awaitTermination();
-      scheduler.shutdown();
       return 0;
     } catch (InterruptedException | IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(this.err);
       return 1;
     }
   }
