@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <name>sleep-service</name>
-  <artifactId>sleep-service</artifactId>
+  <artifactId>sleep-server</artifactId>
+  <name>sleep-server</name>
   <version>0.0.1-SNAPSHOT</version>
 
   <parent>
@@ -13,6 +13,10 @@
     <artifactId>sleep-service-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
+
+  <properties>
+    <service.mainClass>com.mattnworb.sleep.v1.server.Main</service.mainClass>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -45,5 +49,9 @@
       <artifactId>argparse4j</artifactId>
     </dependency>
   </dependencies>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+  </build>
 
 </project>

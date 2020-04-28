@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <name>sleep-service</name>
   <groupId>com.mattnworb</groupId>
   <artifactId>sleep-service-parent</artifactId>
+  <name>sleep-service-parent</name>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
@@ -144,15 +144,43 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
-            <id>analyze</id>
+            <id>default</id>
+            <phase>prepare-package</phase>
             <goals>
-              <goal>analyze-only</goal>
+              <goal>copy-dependencies</goal>
             </goals>
-            <configuration>
-              <failOnWarning>false</failOnWarning>
-            </configuration>
           </execution>
         </executions>
+        <configuration>
+          <useBaseVersion>false</useBaseVersion>
+          <overWriteIfNewer>true</overWriteIfNewer>
+          <overWriteReleases>false</overWriteReleases>
+          <overWriteSnapshots>false</overWriteSnapshots>
+          <includeScope>runtime</includeScope>
+          <outputDirectory>${project.build.directory}/lib</outputDirectory>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-jar</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <archive>
+            <addMavenDescriptor>true</addMavenDescriptor>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>${service.mainClass}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
       </plugin>
     </plugins>
 
