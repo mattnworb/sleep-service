@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package mattnworb.sleep.v1;
+
+option java_package = "com.mattnworb.sleep.v1";
+option java_multiple_files = true;
+
+message SleepRequest {
+    int32 sleepTimeMillis = 1;
+}
+message SleepResponse {
+    int32 timeSleptMillis = 1;
+}
+service SleepService {
+    rpc Sleep (SleepRequest) returns (SleepResponse) {
+    }
+}

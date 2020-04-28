@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>sleep-service</name>
+  <groupId>com.mattnworb</groupId>
+  <artifactId>sleep-service-parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+
+  <properties>
+    <maven.compiler.release>11</maven.compiler.release>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+
+    <gcpProjectId>mattbrown-no-xpn</gcpProjectId>
+
+    <!-- Used in plugins and submodules. Should be the same versions as the Spotify BOM -->
+    <grpc.version>1.28.0</grpc.version>
+    <protobuf.version>3.11.0</protobuf.version>
+<!--    <autovalue.version>1.7</autovalue.version>-->
+<!--    <autoservice.version>1.0-rc6</autoservice.version>-->
+  </properties>
+
+  <modules>
+    <module>cli</module>
+    <module>protos</module>
+    <module>service</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-bom</artifactId>
+        <version>1.28.0</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.2.3</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.2</version>
+      </extension>
+    </extensions>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <showWarnings>true</showWarnings>
+          <compilerArgs>
+            <arg>-XDcompilePolicy=simple</arg>
+            <arg>
+              -Xplugin:ErrorProne
+              -XepDisableWarningsInGeneratedCode
+              -XepExcludedPaths:.*/generated-(test-)?sources/.*
+              -Xep:MissingOverride:ERROR
+              -Xep:StreamResourceLeak:ERROR
+              -Xep:AutoValueImmutableFields:ERROR
+              -Xep:UnusedVariable:ERROR
+              -Xep:CanonicalDuration:ERROR
+              -Xep:StringSplitter:ERROR
+              -Xep:MutableConstantField:ERROR
+              -Xep:TypeParameterUnusedInFormals:ERROR
+            </arg>
+            <!-- proto generated code is doing weird casts -->
+            <arg>-Xlint:-cast</arg>
+            <!-- remove warnings from generated code -->
+            <arg>-Xlint:-processing</arg>
+            <!-- warns about bad paths -->
+            <arg>-Xlint:-path</arg>
+          </compilerArgs>
+          <annotationProcessorPaths>
+<!--            <path>-->
+<!--              <groupId>com.google.auto.value</groupId>-->
+<!--              <artifactId>auto-value</artifactId>-->
+<!--              <version>${autovalue.version}</version>-->
+<!--            </path>-->
+            <path>
+              <groupId>com.google.errorprone</groupId>
+              <artifactId>error_prone_core</artifactId>
+              <version>2.3.4</version>
+            </path>
+            <!-- We don't actively use auto-service, but this seems to fix errors in IntelliJ
+            that it can't find the classes, possibly because of IntelliJ bugs translating
+            the maven config to its own compiler settings. -->
+<!--            <path>-->
+<!--              <groupId>com.google.auto.service</groupId>-->
+<!--              <artifactId>auto-service</artifactId>-->
+<!--              <version>${autoservice.version}</version>-->
+<!--            </path>-->
+          </annotationProcessorPaths>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <configuration>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>
+            io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
+          <checkStaleness>true</checkStaleness>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>analyze</id>
+            <goals>
+              <goal>analyze-only</goal>
+            </goals>
+            <configuration>
+              <failOnWarning>false</failOnWarning>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.coveo</groupId>
+          <artifactId>fmt-maven-plugin</artifactId>
+          <version>2.9</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+</project>
