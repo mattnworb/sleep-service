@@ -18,11 +18,11 @@
 
     <gcpProjectId>mattbrown-no-xpn</gcpProjectId>
 
-    <!-- Used in plugins and submodules. Should be the same versions as the Spotify BOM -->
     <grpc.version>1.28.0</grpc.version>
     <protobuf.version>3.11.0</protobuf.version>
-<!--    <autovalue.version>1.7</autovalue.version>-->
-<!--    <autoservice.version>1.0-rc6</autoservice.version>-->
+
+    <logback.version>1.2.3</logback.version>
+    <slf4j.version>1.7.25</slf4j.version>
   </properties>
 
   <modules>
@@ -43,7 +43,17 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.2.3</version>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.sourceforge.argparse4j</groupId>
+        <artifactId>argparse4j</artifactId>
+        <version>0.8.1</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
