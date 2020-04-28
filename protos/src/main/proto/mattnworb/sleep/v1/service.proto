@@ -12,6 +12,6 @@ message SleepResponse {
     int32 timeSleptMillis = 1;
 }
 service SleepService {
-    rpc Sleep (SleepRequest) returns (SleepResponse) {
-    }
+    // Sleep will send back a response after sleeping the requested amount of time in the request message.
+    rpc Sleep (SleepRequest) returns (SleepResponse) {}
 }
