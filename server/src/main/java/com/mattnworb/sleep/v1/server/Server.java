@@ -32,8 +32,8 @@ public class Server {
             .intercept(new LoggingServerInterceptor())
             .build();
 
-      server.start();
-      log.info("started server on port {}", port);
+    server.start();
+    log.info("started server on port {}", port);
   }
 
   void awaitTermination() throws InterruptedException {

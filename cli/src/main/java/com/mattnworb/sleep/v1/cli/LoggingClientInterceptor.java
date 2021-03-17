@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LoggingClientInterceptor implements io.grpc.ClientInterceptor {
-private static final Logger log = LoggerFactory.getLogger(LoggingClientInterceptor.class);
+  private static final Logger log = LoggerFactory.getLogger(LoggingClientInterceptor.class);
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -30,8 +30,7 @@ private static final Logger log = LoggerFactory.getLogger(LoggingClientIntercept
       public void start(final Listener<RespT> delegate, final Metadata headers) {
         log.info("starting call to {}", fullMethodName);
 
-        ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>
-            listener =
+        ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> listener =
             new ForwardingClientCallListener.SimpleForwardingClientCallListener<>(delegate) {
               @Override
               public void onMessage(final RespT message) {
