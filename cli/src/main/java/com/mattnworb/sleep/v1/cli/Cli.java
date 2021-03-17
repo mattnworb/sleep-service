@@ -73,7 +73,7 @@ public class Cli {
 
     parser
         .addArgument("sleepTime")
-        .metavar("SLEEPTIME")
+        .metavar("SLEEP_TIME_MILLIS")
         .help("value to send in request")
         .type(Integer.class);
 
